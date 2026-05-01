@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<!-- © Jorge Iván Pérez Rincón · Todos los derechos reservados -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petrolbox Vigilant</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f5a623">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Petrolbox">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e334d;--accent:#f5a623;--ok:#3ecf8e;--warn:#f5a623;--danger:#e8572a;--text:#e8eaf0;--muted:#6b7194;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:48px;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:300;}
+.logo{font-family:var(--mono);font-size:15px;color:var(--accent);letter-spacing:1px;}
+.logo span{color:var(--muted);}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border:none;background:none;transition:all .15s;}
+.nav-tab:hover{color:var(--text);background:var(--surface2);}
+.nav-tab.active{color:var(--accent);background:rgba(245,166,35,.1);}
+.container{max-width:1280px;margin:0 auto;padding:28px 20px;}
+.section{display:none;}.section.active{display:block;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.stat-value{font-family:var(--mono);font-size:28px;font-weight:600;}
+.stat-value.ok{color:var(--ok);}.stat-value.warn{color:var(--warn);}.stat-value.danger{color:var(--danger);}.stat-value.neutral{color:var(--text);}
+.toolbar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.search-box{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .15s;}
+.search-box:focus{border-color:var(--accent);}
+.search-box::placeholder{color:var(--muted);}
+select.fsel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;cursor:pointer;}
+.btn{padding:8px 18px;border-radius:8px;border:none;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--accent);color:#000;}.btn-primary:hover{background:#e0952a;}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:rgba(232,87,42,.15);border:1px solid var(--danger);color:var(--danger);}.btn-danger:hover{background:rgba(232,87,42,.3);}
+.btn-sm{padding:4px 12px;font-size:12px;}.btn-xs{padding:2px 8px;font-size:11px;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid rgba(46,51,77,.5);transition:background .1s;}
+tbody tr:hover{background:var(--surface2);}
+td{padding:10px 12px;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--mono);}
+.badge-ok{background:rgba(62,207,142,.12);color:var(--ok);border:1px solid rgba(62,207,142,.3);}
+.badge-warn{background:rgba(245,166,35,.12);color:var(--warn);border:1px solid rgba(245,166,35,.3);}
+.badge-danger{background:rgba(232,87,42,.12);color:var(--danger);border:1px solid rgba(232,87,42,.3);}
+.badge-gray{background:rgba(107,113,148,.12);color:var(--muted);border:1px solid rgba(107,113,148,.3);}
+.badge-tipo{background:rgba(245,166,35,.08);color:var(--accent);border:1px solid rgba(245,166,35,.2);font-size:10px;padding:1px 7px;margin:1px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;padding:28px;}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:22px;color:var(--accent);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+label.flabel{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+input.finput,textarea.finput,select.finput{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .15s;width:100%;}
+input.finput:focus,textarea.finput:focus,select.finput:focus{border-color:var(--accent);}
+textarea.finput{resize:vertical;min-height:60px;}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+.sdiv{font-size:11px;color:var(--accent);font-family:var(--mono);letter-spacing:.8px;margin:20px 0 12px;text-transform:uppercase;border-top:1px solid var(--border);padding-top:16px;}
+.tipos-grid{display:flex;flex-direction:column;gap:8px;}
+.tipo-check{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:10px;}
+.tipo-check:hover{border-color:var(--accent);}
+.tipo-check.selected{border-color:var(--accent);background:rgba(245,166,35,.06);}
+.tipo-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;cursor:pointer;}
+.tipo-check-name{font-size:13px;font-weight:500;}
+.tipo-check-per{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
+.detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+.detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.detail-name{font-size:20px;font-weight:600;}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;}
+.detail-item label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px;}
+.detail-item span{font-size:14px;}
+.tipos-activos{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.tipo-row{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.tipo-row-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.tipo-row-meta{font-size:11px;color:var(--muted);font-family:var(--mono);}
+.tipo-row-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.rev-list{display:flex;flex-direction:column;gap:8px;}
+.rev-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.rev-tipo-tag{font-size:10px;font-family:var(--mono);color:var(--accent);background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1px 7px;margin-bottom:4px;display:inline-block;}
+.rev-date{font-family:var(--mono);font-size:13px;color:var(--accent);}
+.alert-list{display:flex;flex-direction:column;gap:8px;}
+.alert-item{background:var(--surface);border-left:3px solid var(--warn);border-radius:0 10px 10px 0;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;cursor:pointer;}
+.alert-item:hover{background:var(--surface2);}
+.alert-item.expired{border-left-color:var(--danger);}
+.alert-name{font-weight:500;font-size:14px;}
+.alert-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.alert-days{font-family:var(--mono);font-size:13px;white-space:nowrap;}
+.config-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:640px;margin-bottom:20px;}
+.config-box h3{font-size:13px;color:var(--accent);font-family:var(--mono);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px;}
+.sql-block{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11px;color:var(--ok);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;margin-top:10px;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:14px;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;}
+.toast.show{opacity:1;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state .icon{font-size:36px;margin-bottom:12px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--muted);cursor:pointer;font-size:13px;margin-bottom:18px;}
+.back-btn:hover{color:var(--accent);}
+.actions{display:flex;gap:6px;flex-wrap:wrap;}
+.export-opt{padding:8px 12px;font-size:13px;cursor:pointer;border-radius:6px;color:var(--text);white-space:nowrap;}
+.export-opt:hover{background:var(--surface2);color:var(--accent);}
+.fg{display:flex;flex-direction:column;gap:6px;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo">PETROLBOX <span>· VIGILANT</span></div>
+    <div id="realtime-indicator" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)" title="Tiempo real activo"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showSection('dashboard')">Panel</button>
+      <button class="nav-tab" onclick="showSection('clientes')">Instalaciones</button>
+      <button class="nav-tab" onclick="showSection('alertas')">Alertas</button>
+      <button class="nav-tab" onclick="showSection('config')">Config</button>
+    </div>
+    <button id="btn-instalar" style="display:none;padding:5px 14px;border-radius:8px;border:1px solid rgba(245,166,35,.4);background:rgba(245,166,35,.1);color:var(--accent);font-family:var(--sans);font-size:12px;cursor:pointer" onclick="instalarPWA()">📲 Instalar</button>
+  </div>
+</header>
+<div class="container">
+
+<!-- DASHBOARD -->
+<div class="section active" id="s-dashboard">
+  <div class="stats">
+    <div class="stat-card"><div class="stat-label">Instalaciones</div><div class="stat-value neutral" id="st-total">—</div></div>
+    <div class="stat-card"><div class="stat-label">Revisiones al día</div><div class="stat-value ok" id="st-ok">—</div></div>
+    <div class="stat-card"><div class="stat-label">Próx. 30 días</div><div class="stat-value warn" id="st-warn">—</div></div>
+    <div class="stat-card"><div class="stat-label">Vencidas</div><div class="stat-value danger" id="st-danger">—</div></div>
+    <div class="stat-card"><div class="stat-label">Sin revisión</div><div class="stat-value neutral" id="st-none">—</div></div>
+  </div>
+
+  <!-- GRÁFICAS -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:28px">
+    <!-- Instalaciones por estado -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-family:var(--mono)">Instalaciones por estado</div>
+      <div style="position:relative;height:200px"><canvas id="chart-estado"></canvas></div>
+    </div>
+    <!-- Estado por tipo de revisión -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-family:var(--mono)">Estado por tipo de revisión</div>
+      <div style="position:relative;height:200px"><canvas id="chart-tipo"></canvas></div>
+    </div>
+    <!-- Revisiones por mes -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-family:var(--mono)">Revisiones registradas por mes</div>
+      <div style="position:relative;height:200px"><canvas id="chart-meses"></canvas></div>
+    </div>
+    <!-- Vencimientos próximos 12 meses -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;font-family:var(--mono)">Vencimientos próximos 12 meses</div>
+      <div style="position:relative;height:200px"><canvas id="chart-vencimientos"></canvas></div>
+    </div>
+  </div>
+
+  <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Alertas urgentes — vencidas y próximos 30 días</div>
+  <div class="alert-list" id="dash-alerts"></div>
+</div>
+
+<!-- INSTALACIONES -->
+<div class="section" id="s-clientes">
+  <div class="toolbar">
+    <input class="search-box" id="search-input" placeholder="Buscar nombre, NIF, municipio, expediente..." oninput="renderClientes()">
+    <select class="fsel" id="filter-tipo" onchange="renderClientes()"><option value="">Todos los tipos</option></select>
+    <select class="fsel" id="filter-estado" onchange="renderClientes()">
+      <option value="">Todos los estados</option>
+      <option value="ok">Al día</option>
+      <option value="warn">Próximo vencimiento</option>
+      <option value="danger">Vencido</option>
+      <option value="none">Sin revisión</option>
+    </select>
+    <div style="display:flex;gap:8px">
+      <div style="position:relative" id="export-menu-wrap">
+        <button class="btn btn-ghost" onclick="toggleExportMenu()">📊 Exportar ▾</button>
+        <div id="export-menu" style="display:none;position:absolute;right:0;top:38px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px;z-index:90;min-width:220px;box-shadow:0 4px 12px rgba(0,0,0,.3)">
+          <div style="font-size:10px;color:var(--muted);padding:4px 12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">Excel</div>
+          <div class="export-opt" onclick="exportarInstalaciones('xlsx')">📋 Todas las instalaciones</div>
+          <div class="export-opt" onclick="exportarAlertas('xlsx')">⚠️ Vencidas y próximas</div>
+          <div class="export-opt" onclick="exportarRevisiones('xlsx')">🗓 Historial de revisiones</div>
+          <div style="height:1px;background:var(--border);margin:4px 0"></div>
+          <div style="font-size:10px;color:var(--muted);padding:4px 12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">PDF</div>
+          <div class="export-opt" onclick="exportarInstalaciones('pdf')">📋 Todas las instalaciones</div>
+          <div class="export-opt" onclick="exportarAlertas('pdf')">⚠️ Vencidas y próximas</div>
+          <div class="export-opt" onclick="exportarRevisiones('pdf')">🗓 Historial de revisiones</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="openClienteModal()">+ Nueva instalación</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Instalación / Expediente</th><th>NIF</th><th>Municipio</th>
+        <th>Tipos activos</th><th>Peor estado</th><th></th>
+      </tr></thead>
+      <tbody id="clientes-tbody"></tbody>
+    </table>
+  </div>
+  <div class="empty-state" id="clientes-empty" style="display:none"><div class="icon">🗂️</div><div>Sin instalaciones registradas</div></div>
+</div>
+
+<!-- DETALLE -->
+<div class="section" id="s-detalle">
+  <div class="back-btn" onclick="showSection('clientes')">← Volver a instalaciones</div>
+  <div class="detail-panel" id="detail-info"></div>
+  <div style="font-size:15px;font-weight:600;margin-bottom:14px;">Estado por tipo de revisión</div>
+  <div class="tipos-activos" id="tipos-activos-list"></div>
+  <div style="font-size:15px;font-weight:600;margin-bottom:14px;margin-top:24px;">🔒 Notas internas</div>
+  <div id="notas-section" style="margin-bottom:24px"></div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;margin-top:8px;">
+    <div style="font-size:15px;font-weight:600;">Historial completo</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="position:relative" id="ficha-export-wrap">
+        <button class="btn btn-ghost" onclick="toggleFichaMenu()" id="btn-export-ficha">📊 Exportar ficha ▾</button>
+        <div id="ficha-export-menu" style="display:none;position:absolute;right:0;top:38px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px;z-index:90;min-width:160px;box-shadow:0 4px 12px rgba(0,0,0,.3)">
+          <div class="export-opt" onclick="exportarFicha('xlsx')">📊 Excel</div>
+          <div class="export-opt" onclick="exportarFicha('pdf')">📄 PDF</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" id="btn-portal">🔗 Portal cliente</button>
+      <button class="btn btn-primary" id="btn-nueva-rev">+ Nueva revisión</button>
+    </div>
+  </div>
+  <div class="rev-list" id="rev-list"></div>
+  <div class="empty-state" id="rev-empty" style="display:none"><div class="icon">📋</div><div>Sin revisiones registradas</div></div>
+
+  <div style="font-size:15px;font-weight:600;margin-bottom:14px;margin-top:28px;">🔑 Tokens de acceso al portal</div>
+  <div id="tokens-section" style="margin-bottom:24px"></div>
+
+  <div style="font-size:15px;font-weight:600;margin-bottom:14px;margin-top:8px;">🕐 Historial de actividad</div>
+  <div id="auditoria-list"></div>
+</div>
+
+<!-- ALERTAS -->
+<div class="section" id="s-alertas">
+  <div class="toolbar">
+    <select class="fsel" id="alert-filter-tipo" onchange="renderAlertas()"><option value="">Todos los tipos</option></select>
+    <select class="fsel" id="alert-filter-estado" onchange="renderAlertas()">
+      <option value="">Vencidas + próximas 60d</option>
+      <option value="danger">Solo vencidas</option>
+      <option value="warn">Solo próximas</option>
+    </select>
+  </div>
+  <div class="alert-list" id="alertas-list"></div>
+  <div class="empty-state" id="alertas-empty" style="display:none"><div class="icon">✅</div><div>Sin alertas. Todo al día.</div></div>
+</div>
+
+<!-- CONFIG -->
+<div class="section" id="s-config">
+  <div class="config-box">
+    <h3>⚙ Conexión Supabase</h3>
+    <div class="fg" style="margin-bottom:12px"><label class="flabel">URL del proyecto</label><input class="finput" id="cfg-url" placeholder="https://xxxx.supabase.co" oninput="saveConfig()"></div>
+    <div class="fg" style="margin-bottom:16px"><label class="flabel">Anon Key</label><input class="finput" id="cfg-key" type="password" placeholder="eyJhbGci..." oninput="saveConfig()"></div>
+    <button class="btn btn-primary" onclick="testConnection()">Probar conexión</button>
+    <div id="conn-status" style="margin-top:12px;font-size:13px;"></div>
+
+  </div>
+  <div class="config-box">
+    <h3>📧 Mailer — Avisos de vencimiento</h3>
+    <div class="fg" style="margin-bottom:16px"><label class="flabel">URL del microservicio mailer</label><input class="finput" id="cfg-mailer" placeholder="http://192.168.1.100:3001" oninput="saveMailerConfig()"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="previewAlertas()">👁 Vista previa</button>
+      <button class="btn btn-primary" onclick="enviarAvisosManual()">📤 Enviar avisos ahora</button>
+    </div>
+    <div id="mailer-status" style="margin-top:12px;font-size:13px;"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- MODAL INSTALACIÓN -->
+<div class="modal-overlay" id="modal-cliente">
+<div class="modal">
+  <div class="modal-title" id="modal-cliente-title">Nueva instalación</div>
+  <div class="form-grid">
+    <div class="fg form-full"><label class="flabel">Nombre / Razón social *</label><input class="finput" id="f-nombre" placeholder="Empresa S.L."></div>
+    <div class="fg"><label class="flabel">NIF / CIF</label><input class="finput" id="f-nif" placeholder="B12345678" oninput="onNifInput()"></div>
+    <div class="fg"><label class="flabel">Teléfono</label><input class="finput" id="f-telefono" placeholder="600 000 000"></div>
+    <div class="fg form-full"><label class="flabel">Email avisos (varios separados por coma)</label><input class="finput" id="f-email" type="email" placeholder="contacto@empresa.com"></div>
+    <div class="fg form-full"><label class="flabel">Dirección instalación</label><input class="finput" id="f-direccion" placeholder="Calle, número"></div>
+    <div class="fg"><label class="flabel">Municipio</label><input class="finput" id="f-municipio" placeholder="Alcalá de Henares"></div>
+    <div class="fg"><label class="flabel">Provincia</label><input class="finput" id="f-provincia" placeholder="Madrid"></div>
+    <div class="fg"><label class="flabel">Nº expediente</label><input class="finput" id="f-expediente" placeholder="EXP-2024-001"></div>
+    <div class="fg"><label class="flabel">Tipo instalación</label><input class="finput" id="f-tipoinst" placeholder="Gasoil C, Gasolina..."></div>
+    <div class="fg"><label class="flabel">Capacidad (L)</label><input class="finput" id="f-capacidad" type="number" placeholder="10000"></div>
+    <div class="fg"><label class="flabel">Fecha puesta en servicio</label><input class="finput" id="f-puesta" type="date"></div>
+    <div class="fg form-full"><label class="flabel">Observaciones (visibles en portal cliente)</label><textarea class="finput" id="f-obs"></textarea></div>
+    <div class="fg form-full"><label class="flabel">🔒 Nota interna (solo tú la ves)</label><textarea class="finput" id="f-nota" style="border-color:rgba(245,166,35,.3)"></textarea></div>
+    <div class="fg form-full"><label class="flabel">Contraseña portal cliente (opcional)</label><input class="finput" id="f-pass" type="text" placeholder="Por defecto se usa el NIF/CIF — déjalo vacío para acceso sin contraseña"></div>
+  </div>
+  <div class="sdiv">Tipos de revisión aplicables a esta instalación</div>
+  <div class="tipos-grid" id="tipos-checkboxes"></div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeModal('modal-cliente')">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveCliente()">Guardar</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL REVISIÓN -->
+<div class="modal-overlay" id="modal-revision">
+<div class="modal">
+  <div class="modal-title">Registrar revisión</div>
+  <div class="form-grid">
+    <div class="fg form-full"><label class="flabel">Tipo de revisión *</label><select class="finput" id="r-tipo" onchange="calcVencimiento()"></select></div>
+    <div class="fg"><label class="flabel">Fecha revisión *</label><input class="finput" id="r-fecha" type="date" oninput="calcVencimiento()"></div>
+    <div class="fg"><label class="flabel">Resultado</label>
+      <select class="finput" id="r-resultado">
+        <option value="FAVORABLE">FAVORABLE</option>
+        <option value="FAVORABLE CON DEFECTOS">FAVORABLE CON DEFECTOS</option>
+        <option value="DESFAVORABLE">DESFAVORABLE</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flabel">Inspector</label><input class="finput" id="r-inspector" placeholder="Nombre del inspector"></div>
+    <div class="fg"><label class="flabel">Nº certificado</label><input class="finput" id="r-certificado" placeholder="IP04-2024-001"></div>
+    <div class="fg form-full"><label class="flabel">Fecha vencimiento (calculada automáticamente)</label><input class="finput" id="r-vencimiento" type="date" style="color:var(--accent)"></div>
+    <div class="fg form-full"><label class="flabel">Observaciones</label><textarea class="finput" id="r-obs"></textarea></div>
+    <div class="fg form-full">
+      <label class="flabel">Certificado PDF (opcional)</label>
+      <div id="pdf-drop-zone" style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;" onclick="document.getElementById('r-pdf').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="onPdfDrop(event)">
+        <div id="pdf-label" style="font-size:13px;color:var(--muted)">📄 Arrastra el PDF aquí o haz clic para seleccionar</div>
+      </div>
+      <input type="file" id="r-pdf" accept=".pdf,application/pdf" style="display:none" onchange="onPdfSelect(this)">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeModal('modal-revision')">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveRevision()">Guardar revisión</button>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// TIPOS DE REVISIÓN
+// ══════════════════════════════════════════════════════
+const TIPOS = [
+  {id:'rev_con_proyecto',    nombre:'Revisión quinquenal (Con Proyecto)',                              per_anos:5,  per_label:'Cada 5 años'},
+  {id:'rev_sin_proyecto',    nombre:'Revisión decenal (Sin Proyecto)',                              per_anos:10, per_label:'Cada 10 años'},
+  {id:'estanq_tanq_anual',   nombre:'Estanqueidad Tanques — con producto (anual)',                    per_anos:1,  per_label:'Anual'},
+  {id:'estanq_tanq_5a',      nombre:'Estanqueidad Tanques — vacío + pruebas adicionales',             per_anos:5,  per_label:'Cada 5 años'},
+  {id:'estanq_tuberia',      nombre:'Estanqueidad Tuberías simple pared',                             per_anos:3,  per_label:'Cada 3 años'},
+  {id:'primera_estanq',      nombre:'Primera prueba de estanqueidad',                                 per_anos:null, per_label:'5 años desde puesta en servicio', unica:true},
+  {id:'estanq_vapor',        nombre:'Estanqueidad Tuberías de vapor',                                 per_anos:5,  per_label:'Cada 5 años'},
+  {id:'ip04_anual',          nombre:'Revisión IP-04 anual',                                           per_anos:1,  per_label:'Anual'},
+  {id:'deteccion_fugas',     nombre:'Sistema de detección de fugas',                                  per_anos:1,  per_label:'Anual'},
+  {id:'manometro',            nombre:'Revisión de manómetro',                                            per_anos:2,  per_label:'Cada 2 años'},
+  {id:'extincion_auto',       nombre:'Sistema de extinción automática',                                   per_anos:1,  per_label:'Anual'},
+  {id:'separador_hc',         nombre:'Limpieza separador de hidrocarburos',                               per_anos:0.5,per_label:'Cada 6 meses'},
+  // ── Metrología ──
+  {id:'metrologia',           nombre:'Control Metrológico',                                per_anos:1,  per_label:'Anual'},
+  // ── Baja tensión ──
+  {id:'bt_oca',               nombre:'Baja Tensión — Inspección OCA',                                    per_anos:5,  per_label:'Cada 5 años (pendiente confirmar)'},
+  // ── Compresores ──
+  {id:'comp_oca',             nombre:'Compresores — Inspección OCA',                                     per_anos:null, per_label:'Pendiente confirmar'},
+  {id:'comp_nivel_a',         nombre:'Compresores — Nivel A (instalador)',                                per_anos:null, per_label:'Pendiente confirmar'},
+];
+const getTipo = id => TIPOS.find(t => t.id === id);
+
+// ══════════════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════════════
+const SB_URL_K='pb_sb_url', SB_KEY_K='pb_sb_key', ML_K='pb_mailer', BASE_K='pb_base_url';
+let SB_URL=localStorage.getItem(SB_URL_K)||'';
+let SB_KEY=localStorage.getItem(SB_KEY_K)||'';
+let ML_URL=localStorage.getItem(ML_K)||'';
+let BASE_URL=localStorage.getItem(BASE_K)||'https://petrolbox.es';
+
+
+function hdrs(){return{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};}
+async function sbGet(t,p=''){const r=await fetch(SB_URL+'/rest/v1/'+t+'?'+p,{headers:hdrs()});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(t,d){const r=await fetch(SB_URL+'/rest/v1/'+t,{method:'POST',headers:{...hdrs(),'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(t,id,d){const r=await fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+id,{method:'PATCH',headers:{...hdrs(),'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbDel(t,id){const r=await fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+id,{method:'DELETE',headers:hdrs()});if(!r.ok)throw new Error(await r.text());}
+
+// ══════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════
+function toast(msg,ok=true){const t=document.getElementById('toast');t.textContent=msg;t.style.borderColor=ok?'var(--ok)':'var(--danger)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function fd(d){if(!d)return'—';return new Date(d).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function dias(f){if(!f)return null;const h=new Date();h.setHours(0,0,0,0);return Math.round((new Date(f)-h)/86400000);}
+function badge(d){
+  if(d===null)return'<span class="badge badge-gray">Sin revisión</span>';
+  if(d<0)return`<span class="badge badge-danger">Vencido ${Math.abs(d)}d</span>`;
+  if(d<=30)return`<span class="badge badge-warn">Vence ${d}d</span>`;
+  return'<span class="badge badge-ok">Al día</span>';
+}
+function eKey(d){if(d===null)return'none';if(d<0)return'danger';if(d<=30)return'warn';return'ok';}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ══════════════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════════════
+let instalaciones=[], revisiones=[], notas=[], auditoria=[], tokens=[], editingId=null, detalleId=null;
+
+let supabaseClient = null;
+
+function initRealtime(){
+  if(!SB_URL||!SB_KEY) return;
+  if(supabaseClient) return; // ya iniciado
+
+  supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+  // Escuchar cambios en revisiones
+  supabaseClient.channel('realtime-revisiones')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pb_revisiones' }, async payload => {
+      console.log('Realtime revisiones:', payload.eventType);
+      revisiones = await sbGet('pb_revisiones','order=fecha_revision.desc');
+      renderDashboard();
+      renderClientes();
+      if(detalleId){
+        const inst = instalaciones.find(x=>x.id===detalleId);
+        if(inst){ renderTiposActivos(inst); renderRevisiones(detalleId); }
+      }
+      toast('Datos actualizados en tiempo real', true);
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pb_instalaciones' }, async payload => {
+      console.log('Realtime instalaciones:', payload.eventType);
+      instalaciones = await sbGet('pb_instalaciones','order=nombre.asc');
+      renderDashboard();
+      renderClientes();
+    })
+    .subscribe(status => {
+      console.log('Realtime status:', status);
+      const ind = document.getElementById('realtime-indicator');
+      if(ind) ind.style.display = status === 'SUBSCRIBED' ? 'block' : 'none';
+    });
+}
+
+async function loadAll(){
+  if(!SB_URL||!SB_KEY)return;
+  try{
+    instalaciones=await sbGet('pb_instalaciones','order=nombre.asc');
+    revisiones=await sbGet('pb_revisiones','order=fecha_revision.desc');
+    notas=await sbGet('pb_notas','order=created_at.desc');
+    auditoria=await sbGet('pb_auditoria','order=created_at.desc&limit=500');
+    tokens=await sbGet('pb_tokens','order=created_at.desc');
+    renderDashboard();renderClientes();
+    initRealtime();
+  }catch(e){toast('Error al cargar: '+e.message,false);}
+}
+
+function ultimaRev(instId,tipoId){return revisiones.find(r=>r.instalacion_id===instId&&r.tipo_revision_id===tipoId)||null;}
+
+function peorEstado(inst){
+  const tipos=inst.tipos_revision||[];
+  if(!tipos.length)return{key:'none',d:null};
+  let worst={key:'ok',d:99999};
+  tipos.forEach(tid=>{
+    const rev=ultimaRev(inst.id,tid);
+    const d=rev?dias(rev.fecha_vencimiento):null;
+    const k=eKey(d);
+    if(k==='none'){worst={key:'none',d:null};return;}
+    if(k==='danger'&&(worst.key!=='danger'||(d<worst.d)))worst={key:'danger',d};
+    else if(k==='warn'&&worst.key==='ok')worst={key:'warn',d};
+    else if(k==='warn'&&worst.key==='warn'&&d<worst.d)worst={key:'warn',d};
+  });
+  return worst;
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+// Charts globales para poder destruirlos al re-renderizar
+let _charts = {};
+function destroyChart(id){ if(_charts[id]){_charts[id].destroy();delete _charts[id];} }
+
+function renderDashboard(){
+  let ok=0,warn=0,danger=0,none=0;
+  const alerts=[];
+  instalaciones.forEach(inst=>{
+    (inst.tipos_revision||[]).forEach(tid=>{
+      const rev=ultimaRev(inst.id,tid);
+      const d=rev?dias(rev.fecha_vencimiento):null;
+      const k=eKey(d);
+      if(k==='ok')ok++;
+      else if(k==='warn'){warn++;alerts.push({inst,tid,d,k,rev});}
+      else if(k==='danger'){danger++;alerts.push({inst,tid,d,k,rev});}
+      else none++;
+    });
+  });
+  document.getElementById('st-total').textContent=instalaciones.length;
+  document.getElementById('st-ok').textContent=ok;
+  document.getElementById('st-warn').textContent=warn;
+  document.getElementById('st-danger').textContent=danger;
+  document.getElementById('st-none').textContent=none;
+
+  // ── Gráfica 1: Instalaciones por estado (dona) ──
+  destroyChart('estado');
+  const ctxE=document.getElementById('chart-estado');
+  if(ctxE){
+    _charts['estado']=new Chart(ctxE,{
+      type:'doughnut',
+      data:{
+        labels:['Al día','Próximas (30d)','Vencidas','Sin revisión'],
+        datasets:[{data:[ok,warn,danger,none],backgroundColor:['#3ecf8e','#f5a623','#e8572a','#6b7194'],borderWidth:0,hoverOffset:6}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#e8eaf0',font:{size:11},boxWidth:12,padding:10}}}}
+    });
+  }
+
+  // ── Gráfica 2: Estado por tipo de revisión (barras apiladas) ──
+  destroyChart('tipo');
+  const ctxT=document.getElementById('chart-tipo');
+  if(ctxT){
+    const tipoStats={};
+    instalaciones.forEach(inst=>{
+      (inst.tipos_revision||[]).forEach(tid=>{
+        if(!tipoStats[tid]) tipoStats[tid]={ok:0,warn:0,danger:0,none:0};
+        const rev=ultimaRev(inst.id,tid);
+        const d=rev?dias(rev.fecha_vencimiento):null;
+        tipoStats[tid][eKey(d)]++;
+      });
+    });
+    const labels=Object.keys(tipoStats).map(tid=>getTipo(tid)?.nombre?.split('(')[0].trim().substring(0,20)||tid);
+    const tids=Object.keys(tipoStats);
+    _charts['tipo']=new Chart(ctxT,{
+      type:'bar',
+      data:{
+        labels,
+        datasets:[
+          {label:'Al día',data:tids.map(t=>tipoStats[t].ok),backgroundColor:'#3ecf8e'},
+          {label:'Próximas',data:tids.map(t=>tipoStats[t].warn),backgroundColor:'#f5a623'},
+          {label:'Vencidas',data:tids.map(t=>tipoStats[t].danger),backgroundColor:'#e8572a'},
+          {label:'Sin rev.',data:tids.map(t=>tipoStats[t].none),backgroundColor:'#6b7194'},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{color:'#6b7194',font:{size:9}},grid:{color:'#2e334d'}},y:{stacked:true,ticks:{color:'#6b7194',font:{size:10}},grid:{color:'#2e334d'}}},plugins:{legend:{labels:{color:'#e8eaf0',font:{size:10},boxWidth:10,padding:8}}}}
+    });
+  }
+
+  // ── Gráfica 3: Revisiones por mes (últimos 12 meses) ──
+  destroyChart('meses');
+  const ctxM=document.getElementById('chart-meses');
+  if(ctxM){
+    const mesesData={};
+    const hoy=new Date();
+    for(let i=11;i>=0;i--){
+      const d=new Date(hoy.getFullYear(),hoy.getMonth()-i,1);
+      const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      mesesData[k]=0;
+    }
+    revisiones.forEach(r=>{
+      if(!r.fecha_revision) return;
+      const k=r.fecha_revision.substring(0,7);
+      if(mesesData[k]!==undefined) mesesData[k]++;
+    });
+    const mLabels=Object.keys(mesesData).map(k=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('es-ES',{month:'short',year:'2-digit'});});
+    _charts['meses']=new Chart(ctxM,{
+      type:'bar',
+      data:{labels:mLabels,datasets:[{label:'Revisiones',data:Object.values(mesesData),backgroundColor:'rgba(245,166,35,.7)',borderColor:'#f5a623',borderWidth:1,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7194',font:{size:10}},grid:{color:'#2e334d'}},y:{ticks:{color:'#6b7194',font:{size:10},stepSize:1},grid:{color:'#2e334d'}}},plugins:{legend:{display:false}}}
+    });
+  }
+
+  // ── Gráfica 4: Vencimientos próximos 12 meses (línea) ──
+  destroyChart('vencimientos');
+  const ctxV=document.getElementById('chart-vencimientos');
+  if(ctxV){
+    const vencData={};
+    const hoy2=new Date();
+    for(let i=0;i<12;i++){
+      const d=new Date(hoy2.getFullYear(),hoy2.getMonth()+i,1);
+      const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      vencData[k]=0;
+    }
+    instalaciones.forEach(inst=>{
+      (inst.tipos_revision||[]).forEach(tid=>{
+        const rev=ultimaRev(inst.id,tid);
+        if(!rev?.fecha_vencimiento) return;
+        const k=rev.fecha_vencimiento.substring(0,7);
+        if(vencData[k]!==undefined) vencData[k]++;
+      });
+    });
+    const vLabels=Object.keys(vencData).map(k=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('es-ES',{month:'short',year:'2-digit'});});
+    _charts['vencimientos']=new Chart(ctxV,{
+      type:'line',
+      data:{labels:vLabels,datasets:[{label:'Vencimientos',data:Object.values(vencData),borderColor:'#e8572a',backgroundColor:'rgba(232,87,42,.15)',fill:true,tension:.3,pointBackgroundColor:'#e8572a',pointRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#6b7194',font:{size:10}},grid:{color:'#2e334d'}},y:{ticks:{color:'#6b7194',font:{size:10},stepSize:1},grid:{color:'#2e334d'}}},plugins:{legend:{display:false}}}
+    });
+  }
+
+  // ── Alertas ──
+  alerts.sort((a,b)=>(a.d??9999)-(b.d??9999));
+  const cont=document.getElementById('dash-alerts');
+  if(!alerts.length){cont.innerHTML='<div class="empty-state"><div class="icon">✅</div><div>Sin alertas urgentes</div></div>';return;}
+  cont.innerHTML=alerts.slice(0,25).map(({inst,tid,d,k,rev})=>{
+    const tipo=getTipo(tid);
+    const msg=d<0?`Vencido hace ${Math.abs(d)}d`:`Vence en ${d}d`;
+    return`<div class="alert-item ${k==='danger'?'expired':''}" onclick="openDetalle('${inst.id}')">
+      <div>
+        <div class="alert-name">${inst.nombre}</div>
+        <div class="alert-sub">${tipo?.nombre||tid} · ${inst.municipio||''}</div>
+        <div class="alert-sub">Última: ${fd(rev?.fecha_revision)} · Vence: ${fd(rev?.fecha_vencimiento)}</div>
+      </div>
+      <div class="alert-days" style="color:${k==='danger'?'var(--danger)':'var(--warn)'}">${msg}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// INSTALACIONES TABLE
+// ══════════════════════════════════════════════════════
+function renderClientes(){
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  const ft=document.getElementById('filter-tipo').value;
+  const fe=document.getElementById('filter-estado').value;
+  const lista=instalaciones.filter(inst=>{
+    const m=!q||[inst.nombre,inst.nif,inst.municipio,inst.expediente].some(v=>(v||'').toLowerCase().includes(q));
+    const tt=!ft||(inst.tipos_revision||[]).includes(ft);
+    const{key}=peorEstado(inst);
+    const ee=!fe||fe===key;
+    return m&&tt&&ee;
+  });
+  const tbody=document.getElementById('clientes-tbody');
+  const empty=document.getElementById('clientes-empty');
+  if(!lista.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=lista.map(inst=>{
+    const{key,d}=peorEstado(inst);
+    const tipos=(inst.tipos_revision||[]).map(tid=>{
+      const t=getTipo(tid);
+      const shortName=(t?.nombre||tid).split('(')[0].trim().split(' ').slice(0,2).join(' ');
+      return`<span class="badge badge-tipo">${shortName}</span>`;
+    }).join(' ');
+    return`<tr>
+      <td style="cursor:pointer" onclick="openDetalle('${inst.id}')">
+        <span style="font-weight:500;color:var(--accent)">${inst.nombre}</span>
+        ${inst.expediente?`<br><span style="font-size:11px;color:var(--muted);font-family:var(--mono)">${inst.expediente}</span>`:''}
+      </td>
+      <td style="font-family:var(--mono);font-size:11px">${inst.nif||'—'}</td>
+      <td>${inst.municipio||'—'}</td>
+      <td style="max-width:260px">${tipos||'<span style="color:var(--muted);font-size:12px">—</span>'}</td>
+      <td>${badge(d===99999?null:d)}</td>
+      <td><div class="actions">
+        <button class="btn btn-ghost btn-sm" onclick="openClienteModal('${inst.id}')">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCliente('${inst.id}')">Borrar</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// DETALLE
+// ══════════════════════════════════════════════════════
+function openDetalle(id){
+  detalleId=id;
+  const inst=instalaciones.find(x=>x.id===id);
+  if(!inst)return;
+  showSection('detalle');
+  document.getElementById('detail-info').innerHTML=`
+    <div class="detail-header">
+      <div><div class="detail-name">${inst.nombre}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">${inst.tipo_instalacion||''} · ${inst.municipio||''}</div></div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item"><label>NIF</label><span>${inst.nif||'—'}</span></div>
+      <div class="detail-item"><label>Teléfono</label><span>${inst.telefono||'—'}</span></div>
+      <div class="detail-item"><label>Email</label><span style="font-size:12px">${inst.email||'—'}</span></div>
+      <div class="detail-item"><label>Dirección</label><span>${inst.direccion||'—'}</span></div>
+      <div class="detail-item"><label>Municipio</label><span>${inst.municipio||'—'} (${inst.provincia||'—'})</span></div>
+      <div class="detail-item"><label>Expediente</label><span style="font-family:var(--mono)">${inst.expediente||'—'}</span></div>
+      <div class="detail-item"><label>Capacidad</label><span>${inst.capacidad_litros?inst.capacidad_litros+' L':'—'}</span></div>
+      <div class="detail-item"><label>Puesta en servicio</label><span>${fd(inst.fecha_puesta_servicio)}</span></div>
+      ${inst.observaciones?`<div class="detail-item" style="grid-column:1/-1"><label>Observaciones</label><span>${inst.observaciones}</span></div>`:''}
+    </div>`;
+  document.getElementById('btn-nueva-rev').onclick=()=>openRevModal(id);
+  document.getElementById('btn-portal').onclick=()=>generarPortal(id);
+  document.getElementById('btn-export-ficha').onclick=()=>toggleFichaMenu();
+  renderTiposActivos(inst);
+  renderNotas(id);
+  renderRevisiones(id);
+  renderTokens(id);
+  renderAuditoria(id);
+}
+
+function renderTiposActivos(inst){
+  const lista=document.getElementById('tipos-activos-list');
+  const tipos=inst.tipos_revision||[];
+  if(!tipos.length){lista.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px">Sin tipos configurados.</div>';return;}
+  lista.innerHTML=tipos.map(tid=>{
+    const tipo=getTipo(tid);
+    const rev=ultimaRev(inst.id,tid);
+    const d=rev?dias(rev.fecha_vencimiento):null;
+    return`<div class="tipo-row">
+      <div style="flex:1">
+        <div class="tipo-row-name">${tipo?.nombre||tid}</div>
+        <div class="tipo-row-meta">${tipo?.per_label||''} · Última: ${fd(rev?.fecha_revision)} · Vence: ${fd(rev?.fecha_vencimiento)}</div>
+      </div>
+      <div class="tipo-row-right">
+        ${badge(d)}
+        <button class="btn btn-ghost btn-xs" onclick="openRevModalTipo('${inst.id}','${tid}')">+ Rev.</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRevisiones(instId){
+  const revs=revisiones.filter(r=>r.instalacion_id===instId);
+  const list=document.getElementById('rev-list');
+  const empty=document.getElementById('rev-empty');
+  if(!revs.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=revs.map(r=>{
+    const tipo=getTipo(r.tipo_revision_id);
+    const d=dias(r.fecha_vencimiento);
+    return`<div class="rev-item">
+      <div style="flex:1">
+        <span class="rev-tipo-tag">${tipo?.nombre||r.tipo_revision_id}</span>
+        <div class="rev-date" style="margin-top:4px">${fd(r.fecha_revision)}</div>
+        <div style="font-size:13px;margin-top:2px">${r.resultado}</div>
+        ${r.inspector?`<div style="font-size:11px;color:var(--muted);margin-top:2px">Inspector: ${r.inspector}</div>`:''}
+        ${r.num_certificado?`<div style="font-size:11px;color:var(--muted)">Cert: ${r.num_certificado}</div>`:''}
+        ${r.observaciones?`<div style="font-size:11px;color:var(--muted);margin-top:4px">${r.observaciones}</div>`:''}
+        ${r.registrado_por==='cliente'?'<div style="font-size:10px;color:var(--ok);font-family:var(--mono);margin-top:4px">▲ Registrado por cliente</div>':''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;color:var(--muted)">Vence: ${fd(r.fecha_vencimiento)}</div>
+        <div style="margin-top:6px">${badge(d)}</div>
+        ${r.certificado_url
+          ? `<a href="${r.certificado_url}" target="_blank" class="btn btn-ghost btn-xs" style="margin-top:8px;display:inline-block;text-decoration:none">📄 PDF</a>`
+          : `<button class="btn btn-ghost btn-xs" style="margin-top:8px" onclick="triggerPdfUpload('${r.id}','${r.instalacion_id||detalleId}')">📎 Subir PDF</button>`
+        }
+        <button class="btn btn-danger btn-xs" style="margin-top:8px" onclick="deleteRevision('${r.id}')">Borrar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// ALERTAS
+// ══════════════════════════════════════════════════════
+function renderAlertas(){
+  const ft=document.getElementById('alert-filter-tipo').value;
+  const fe=document.getElementById('alert-filter-estado').value;
+  const alerts=[];
+  instalaciones.forEach(inst=>{
+    (inst.tipos_revision||[]).forEach(tid=>{
+      if(ft&&ft!==tid)return;
+      const rev=ultimaRev(inst.id,tid);
+      const d=rev?dias(rev.fecha_vencimiento):null;
+      const k=eKey(d);
+      if(fe==='danger'&&k!=='danger')return;
+      if(fe==='warn'&&k!=='warn')return;
+      if(!fe&&(k==='ok'||k==='none'))return;
+      if(d!==null&&d>60)return;
+      alerts.push({inst,tid,d,k,rev});
+    });
+  });
+  alerts.sort((a,b)=>(a.d??9999)-(b.d??9999));
+  const list=document.getElementById('alertas-list');
+  const empty=document.getElementById('alertas-empty');
+  if(!alerts.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=alerts.map(({inst,tid,d,k,rev})=>{
+    const tipo=getTipo(tid);
+    const msg=d===null?'Sin revisión':d<0?`Vencido hace ${Math.abs(d)}d`:`Vence en ${d}d`;
+    return`<div class="alert-item ${k==='danger'?'expired':''}" onclick="openDetalle('${inst.id}')">
+      <div>
+        <div class="alert-name">${inst.nombre}</div>
+        <div class="alert-sub">${tipo?.nombre||tid}</div>
+        <div class="alert-sub">${inst.municipio||''} ${inst.expediente?'· '+inst.expediente:''} · Vence: ${fd(rev?.fecha_vencimiento)}</div>
+      </div>
+      <div class="alert-days" style="color:${k==='danger'?'var(--danger)':'var(--warn)'}">${msg}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// MODAL INSTALACIÓN
+// ══════════════════════════════════════════════════════
+function onNifInput(){
+  const nif = document.getElementById('f-nif').value.trim();
+  const passEl = document.getElementById('f-pass');
+  // Solo rellenar si el campo contraseña está vacío (no sobreescribir si ya tiene una)
+  if(!passEl.value) passEl.value = nif;
+}
+
+function buildCheckboxes(selected=[]){
+  document.getElementById('tipos-checkboxes').innerHTML=TIPOS.map(t=>`
+    <label class="tipo-check ${selected.includes(t.id)?'selected':''}" id="tc-${t.id}">
+      <input type="checkbox" value="${t.id}" ${selected.includes(t.id)?'checked':''} onchange="onTck(this,'${t.id}')">
+      <div><div class="tipo-check-name">${t.nombre}</div><div class="tipo-check-per">${t.per_label}</div></div>
+    </label>`).join('');
+}
+function onTck(el,id){document.getElementById('tc-'+id).classList.toggle('selected',el.checked);}
+function getChecked(){return[...document.querySelectorAll('#tipos-checkboxes input:checked')].map(e=>e.value);}
+
+function openClienteModal(id=null){
+  editingId=id;
+  document.getElementById('modal-cliente-title').textContent=id?'Editar instalación':'Nueva instalación';
+  ['nombre','nif','telefono','email','direccion','municipio','provincia','expediente','tipoinst','capacidad','puesta','obs','nota','pass'].forEach(k=>document.getElementById('f-'+k).value='');
+  let sel=[];
+  if(id){
+    const inst=instalaciones.find(x=>x.id===id);
+    document.getElementById('f-nombre').value=inst.nombre||'';
+    document.getElementById('f-nif').value=inst.nif||'';
+    document.getElementById('f-telefono').value=inst.telefono||'';
+    document.getElementById('f-email').value=inst.email||'';
+    document.getElementById('f-direccion').value=inst.direccion||'';
+    document.getElementById('f-municipio').value=inst.municipio||'';
+    document.getElementById('f-provincia').value=inst.provincia||'';
+    document.getElementById('f-expediente').value=inst.expediente||'';
+    document.getElementById('f-tipoinst').value=inst.tipo_instalacion||'';
+    document.getElementById('f-capacidad').value=inst.capacidad_litros||'';
+    document.getElementById('f-puesta').value=inst.fecha_puesta_servicio||'';
+    document.getElementById('f-obs').value=inst.observaciones||'';
+    document.getElementById('f-nota').value=inst.nota_interna||'';
+    document.getElementById('f-pass').value=inst.portal_password||'';
+    sel=inst.tipos_revision||[];
+  }
+  buildCheckboxes(sel);
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+async function saveCliente(){
+  const nombre=document.getElementById('f-nombre').value.trim();
+  if(!nombre){toast('El nombre es obligatorio',false);return;}
+  const data={
+    nombre,
+    nif:document.getElementById('f-nif').value.trim()||null,
+    telefono:document.getElementById('f-telefono').value.trim()||null,
+    email:document.getElementById('f-email').value.trim()||null,
+    direccion:document.getElementById('f-direccion').value.trim()||null,
+    municipio:document.getElementById('f-municipio').value.trim()||null,
+    provincia:document.getElementById('f-provincia').value.trim()||null,
+    expediente:document.getElementById('f-expediente').value.trim()||null,
+    tipo_instalacion:document.getElementById('f-tipoinst').value.trim()||null,
+    capacidad_litros:parseFloat(document.getElementById('f-capacidad').value)||null,
+    fecha_puesta_servicio:document.getElementById('f-puesta').value||null,
+    tipos_revision:getChecked(),
+    observaciones:document.getElementById('f-obs').value.trim()||null,
+    nota_interna:document.getElementById('f-nota').value.trim()||null,
+    portal_password:document.getElementById('f-pass').value.trim()||null,
+  };
+  try{
+    if(editingId){
+      const instAnt=instalaciones.find(x=>x.id===editingId);
+      await sbPatch('pb_instalaciones',editingId,data);
+      const i=instalaciones.findIndex(x=>x.id===editingId);
+      if(i>=0)instalaciones[i]={...instalaciones[i],...data};
+      await logAudit(editingId,'instalacion_editada',`Datos editados: ${data.nombre}`,
+        {nombre:instAnt?.nombre,email:instAnt?.email,tipos:instAnt?.tipos_revision},
+        {nombre:data.nombre,email:data.email,tipos:data.tipos_revision});
+      toast('Instalación actualizada');
+    }else{
+      const res=await sbPost('pb_instalaciones',data);
+      if(!res||!res[0]) throw new Error('Supabase no devolvió la instalación creada');
+      instalaciones.push(res[0]);
+      instalaciones.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+      await logAudit(res[0].id,'instalacion_creada',`Instalación creada: ${data.nombre}`);
+      toast('Instalación creada');
+    }
+    closeModal('modal-cliente');
+    renderClientes();renderDashboard();
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+async function deleteCliente(id){
+  if(!confirm('¿Eliminar esta instalación y todas sus revisiones?'))return;
+  try{
+    await sbDel('pb_instalaciones',id);
+    instalaciones=instalaciones.filter(x=>x.id!==id);
+    revisiones=revisiones.filter(r=>r.instalacion_id!==id);
+    toast('Instalación eliminada');
+    renderClientes();renderDashboard();
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+// ══════════════════════════════════════════════════════
+// MODAL REVISIÓN
+// ══════════════════════════════════════════════════════
+function openRevModal(instId,preselect=null){
+  detalleId=instId;
+  const inst=instalaciones.find(x=>x.id===instId);
+  const tipos=inst?.tipos_revision||[];
+  const sel=document.getElementById('r-tipo');
+  sel.innerHTML=tipos.map(tid=>{
+    const t=getTipo(tid);
+    return`<option value="${tid}" ${preselect===tid?'selected':''}>${t?.nombre||tid}</option>`;
+  }).join('');
+  document.getElementById('r-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('r-resultado').value='FAVORABLE';
+  document.getElementById('r-inspector').value='';
+  document.getElementById('r-certificado').value='';
+  document.getElementById('r-obs').value='';
+  calcVencimiento();
+  resetPdfInput();
+  document.getElementById('modal-revision').classList.add('open');
+}
+function openRevModalTipo(instId,tid){openRevModal(instId,tid);}
+
+function calcVencimiento(){
+  const instId=detalleId;
+  const inst=instalaciones.find(x=>x.id===instId);
+  const tid=document.getElementById('r-tipo').value;
+  const tipo=getTipo(tid);
+  const fecha=document.getElementById('r-fecha').value;
+  const vEl=document.getElementById('r-vencimiento');
+  if(!fecha||!tipo){vEl.value='';return;}
+  if(tipo.unica){
+    if(inst?.fecha_puesta_servicio){
+      const fv=new Date(inst.fecha_puesta_servicio);
+      fv.setFullYear(fv.getFullYear()+5);
+      vEl.value=fv.toISOString().split('T')[0];
+    }else vEl.value='';
+    return;
+  }
+  if(tipo.per_anos){
+    const fv=new Date(fecha);
+    if(tipo.per_anos < 1){
+      fv.setMonth(fv.getMonth() + Math.round(tipo.per_anos * 12));
+    } else {
+      fv.setFullYear(fv.getFullYear() + tipo.per_anos);
+    }
+    vEl.value=fv.toISOString().split('T')[0];
+  }else vEl.value='';
+}
+
+// ── PDF / Storage ─────────────────────────────────────
+let pendingPdfFile = null;
+
+function onPdfSelect(input){
+  const file = input.files[0];
+  if(!file) return;
+  pendingPdfFile = file;
+  document.getElementById('pdf-label').innerHTML = `📄 <b>${file.name}</b> (${(file.size/1024).toFixed(0)} KB)`;
+  document.getElementById('pdf-drop-zone').style.borderColor = 'var(--accent)';
+}
+function onPdfDrop(e){
+  e.preventDefault();
+  document.getElementById('pdf-drop-zone').style.borderColor = 'var(--border)';
+  const file = e.dataTransfer.files[0];
+  if(file && file.type==='application/pdf'){
+    pendingPdfFile = file;
+    document.getElementById('pdf-label').innerHTML = `📄 <b>${file.name}</b> (${(file.size/1024).toFixed(0)} KB)`;
+    document.getElementById('pdf-drop-zone').style.borderColor = 'var(--accent)';
+  }
+}
+function resetPdfInput(){
+  pendingPdfFile = null;
+  document.getElementById('r-pdf').value = '';
+  document.getElementById('pdf-label').innerHTML = '📄 Arrastra el PDF aquí o haz clic para seleccionar';
+  document.getElementById('pdf-drop-zone').style.borderColor = 'var(--border)';
+}
+
+async function uploadPdf(file, instId, revId){
+  if(file.size > 10 * 1024 * 1024){ throw new Error('El PDF supera el límite de 10 MB'); }
+  const lbl = document.getElementById('pdf-label');
+  if(lbl) lbl.innerHTML = `⏳ Subiendo ${(file.size/1024).toFixed(0)} KB...`;
+  const path = `${instId}/${revId}.pdf`;
+  const r = await fetch(`${SB_URL}/storage/v1/object/certificados/${path}`, {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/pdf', 'x-upsert': 'true' },
+    body: file,
+  });
+  if(!r.ok) throw new Error('Error subiendo PDF: ' + await r.text());
+  return `${SB_URL}/storage/v1/object/public/certificados/${path}`;
+}
+
+
+async function uploadPdfToRevision(revId, instId, file){
+  try{
+    const url = await uploadPdf(file, instId, revId);
+    await sbPatch('pb_revisiones', revId, { certificado_url: url });
+    const idx = revisiones.findIndex(r => r.id === revId);
+    if(idx >= 0) revisiones[idx].certificado_url = url;
+    toast('PDF subido correctamente');
+    const inst = instalaciones.find(x => x.id === instId);
+    if(inst) renderRevisiones(instId);
+  }catch(e){ toast('Error al subir PDF: ' + e.message, false); }
+}
+
+async function saveRevision(){
+  const fecha=document.getElementById('r-fecha').value;
+  const tid=document.getElementById('r-tipo').value;
+  if(!fecha||!tid){toast('Fecha y tipo son obligatorios',false);return;}
+  const data={
+    instalacion_id:detalleId,
+    tipo_revision_id:tid,
+    fecha_revision:fecha,
+    fecha_vencimiento:document.getElementById('r-vencimiento').value||null,
+    resultado:document.getElementById('r-resultado').value,
+    inspector:document.getElementById('r-inspector').value.trim()||null,
+    num_certificado:document.getElementById('r-certificado').value.trim()||null,
+    observaciones:document.getElementById('r-obs').value.trim()||null,
+  };
+  try{
+    const res=await sbPost('pb_revisiones',data);
+    const newRev = res[0];
+    revisiones.unshift(newRev);
+    // Subir PDF si hay uno pendiente
+    if(pendingPdfFile){
+      try{
+        const url = await uploadPdf(pendingPdfFile, detalleId, newRev.id);
+        await sbPatch('pb_revisiones', newRev.id, { certificado_url: url });
+        newRev.certificado_url = url;
+        revisiones[0].certificado_url = url;
+      }catch(e){ toast('Revisión guardada pero error al subir PDF: '+e.message, false); }
+    }
+    const tipoNombreAudit = getTipo(newRev.tipo_revision_id)?.nombre||newRev.tipo_revision_id;
+    await logAudit(detalleId,'revision_añadida',
+      `Revisión añadida: ${tipoNombreAudit} — ${newRev.resultado} (${newRev.fecha_revision})`);
+    toast('Revisión guardada');
+    resetPdfInput();
+    closeModal('modal-revision');
+    const inst=instalaciones.find(x=>x.id===detalleId);
+    if(inst){renderTiposActivos(inst);renderNotas(detalleId);renderRevisiones(detalleId);}
+    renderDashboard();
+    // Preguntar si notificar al cliente
+    if(inst?.email) preguntarNotificar(inst, newRev);
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+// ── Notificación al cliente tras revisión ────────────
+function preguntarNotificar(inst, rev){
+  const tipo = getTipo(rev.tipo_revision_id);
+  const colorRes = rev.resultado==='FAVORABLE'?'#3ecf8e':rev.resultado==='FAVORABLE CON DEFECTOS'?'#f5a623':'#e8572a';
+
+  const div = document.createElement('div');
+  div.id = 'notif-overlay';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;';
+  div.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:480px;width:90%">
+    <div style="font-size:16px;font-weight:600;color:var(--accent);margin-bottom:14px">📧 ¿Notificar al cliente?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">
+      Se enviará un email a <b style="color:var(--text)">${inst.email}</b> con el resultado de la revisión.
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px">
+      <div style="margin-bottom:6px"><b>Instalación:</b> ${inst.nombre}</div>
+      <div style="margin-bottom:6px"><b>Tipo:</b> ${tipo?.nombre||rev.tipo_revision_id}</div>
+      <div style="margin-bottom:6px"><b>Fecha:</b> ${rev.fecha_revision}</div>
+      <div style="margin-bottom:6px"><b>Resultado:</b> <span style="color:${colorRes};font-weight:600">${rev.resultado}</span></div>
+      <div style="margin-bottom:6px"><b>Vencimiento:</b> ${rev.fecha_vencimiento||'—'}</div>
+      ${rev.certificado_url?'<div style="color:var(--ok);font-size:11px;margin-top:4px">✓ PDF del certificado adjunto</div>':'<div style="color:var(--muted);font-size:11px;margin-top:4px">Sin PDF adjunto</div>'}
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+      <button onclick="document.getElementById('notif-overlay').remove()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:13px">No enviar</button>
+      <button id="btn-enviar-notif" style="padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:#000;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500">Enviar notificación</button>
+    </div>
+    <div id="notif-status" style="margin-top:10px;font-size:12px;text-align:center;display:none"></div>
+  </div>`;
+  document.body.appendChild(div);
+
+  document.getElementById('btn-enviar-notif').addEventListener('click', async function(){
+    if(!ML_URL){
+      const s=document.getElementById('notif-status');
+      s.style.display='block';s.style.color='var(--danger)';
+      s.textContent='⚠️ Configura la URL del mailer en Config primero';
+      return;
+    }
+    this.textContent='⏳ Enviando...'; this.disabled=true;
+    const s=document.getElementById('notif-status');
+    try{
+      const r=await fetch(`${ML_URL}/api/send-revision-notif`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({instalacion_id:inst.id, revision_id:rev.id})
+      });
+      const d=await r.json();
+      if(d.ok){
+        s.style.display='block';s.style.color='var(--ok)';
+        s.textContent='✓ Email enviado a '+inst.email;
+        this.textContent='✓ Enviado';
+        await logAudit(inst.id,'email_enviado',`Email de revisión enviado a ${inst.email}`);
+        renderAuditoria(inst.id);
+        setTimeout(()=>document.getElementById('notif-overlay')?.remove(),2000);
+      } else {
+        s.style.display='block';s.style.color='var(--danger)';
+        s.textContent='Error: '+d.error;
+        this.textContent='Reintentar'; this.disabled=false;
+      }
+    }catch(e){
+      s.style.display='block';s.style.color='var(--danger)';
+      s.textContent='Error: '+e.message;
+      this.textContent='Reintentar'; this.disabled=false;
+    }
+  });
+}
+
+async function deleteRevision(id){
+  if(!confirm('¿Eliminar esta revisión?'))return;
+  try{
+    const revDel=revisiones.find(r=>r.id===id);
+    await sbDel('pb_revisiones',id);
+    revisiones=revisiones.filter(r=>r.id!==id);
+    if(revDel) await logAudit(detalleId,'revision_eliminada',
+      `Revisión eliminada: ${getTipo(revDel.tipo_revision_id)?.nombre||revDel.tipo_revision_id} (${revDel.fecha_revision})`);
+    toast('Revisión eliminada');
+    const inst=instalaciones.find(x=>x.id===detalleId);
+    if(inst){renderTiposActivos(inst);renderRevisiones(detalleId);}
+    renderDashboard();
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+// ══════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════
+function saveConfig(){SB_URL=document.getElementById('cfg-url').value.trim();SB_KEY=document.getElementById('cfg-key').value.trim();localStorage.setItem(SB_URL_K,SB_URL);localStorage.setItem(SB_KEY_K,SB_KEY);}
+function saveMailerConfig(){ML_URL=document.getElementById('cfg-mailer').value.trim();localStorage.setItem(ML_K,ML_URL);}
+async function testConnection(){
+  const s=document.getElementById('conn-status');s.textContent='Conectando...';s.style.color='var(--muted)';
+  try{await sbGet('pb_instalaciones','limit=1');s.textContent='✓ Conexión correcta';s.style.color='var(--ok)';await loadAll();}
+  catch(e){s.textContent='✗ Error: '+e.message;s.style.color='var(--danger)';}
+}
+async function previewAlertas(){
+  if(!ML_URL){toast('Configura el mailer primero',false);return;}
+  const s=document.getElementById('mailer-status');s.textContent='Consultando...';s.style.color='var(--muted)';
+  try{const r=await fetch(ML_URL+'/api/preview-alerts');const d=await r.json();const n=d.detalle?.filter(x=>!x.motivo).length||0;s.textContent=n+' instalaciones recibirían aviso hoy';s.style.color='var(--ok)';}
+  catch(e){s.textContent='✗ '+e.message;s.style.color='var(--danger)';}
+}
+async function enviarAvisosManual(){
+  if(!ML_URL){toast('Configura el mailer primero',false);return;}
+  if(!confirm('¿Enviar avisos ahora?'))return;
+  const s=document.getElementById('mailer-status');s.textContent='Enviando...';s.style.color='var(--muted)';
+  try{const r=await fetch(ML_URL+'/api/send-alerts',{method:'POST',headers:{'Content-Type':'application/json'}});const d=await r.json();s.textContent='✓ '+d.enviados+' avisos enviados';s.style.color='var(--ok)';toast(d.enviados+' avisos enviados');}
+  catch(e){s.textContent='✗ '+e.message;s.style.color='var(--danger)';toast('Error',false);}
+}
+
+// Subida de PDF desde historial (sin crear nueva revisión)
+function triggerPdfUpload(revId, instId){
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.pdf,application/pdf';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if(!file) return;
+    await uploadPdfToRevision(revId, instId || detalleId, file);
+  };
+  input.click();
+}
+
+// ══════════════════════════════════════════════════════
+// PORTAL CLIENTE
+// ══════════════════════════════════════════════════════
+// ── Generar PDF de bienvenida ─────────────────────────
+function generarPdfBienvenida(inst, url){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
+  const W = 210, margin = 18, maxW = W - margin*2;
+  let y = 20;
+
+  const saltarLinea = (n=6) => { y += n; };
+  const checkPagina = (espacio=20) => { if(y + espacio > 280){ doc.addPage(); y = 20; } };
+
+  // Cabecera
+  doc.setFillColor(15,17,23);
+  doc.rect(0,0,210,28,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.setTextColor(245,166,35);
+  doc.text('PETROLBOX VIGILANT', margin, 16);
+  doc.setFontSize(9);
+  doc.setTextColor(150,150,150);
+  doc.text('Portal de Revisiones de Instalaciones Petroliferas', margin, 23);
+  y = 38;
+
+  // Datos instalación
+  doc.setFillColor(248,249,250);
+  doc.roundedRect(margin, y, maxW, 28, 3, 3, 'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(26,29,39);
+  doc.text(inst.nombre||'', margin+4, y+9);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(100,100,100);
+  doc.text(`${inst.direccion||''} · ${inst.municipio||''} (${inst.provincia||''})`, margin+4, y+17);
+  doc.setFontSize(9);
+  doc.text(`Expediente: ${inst.expediente||'—'} · NIF: ${inst.nif||'—'}`, margin+4, y+24);
+  y += 36;
+
+  // Texto intro
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(11);
+  doc.setTextColor(50,50,50);
+  const intro = 'Le informamos que dispone de acceso a su Portal de Revisiones, donde podra consultar el estado de todas las revisiones periodicas de su instalacion y registrar las que le correspondan.';
+  const introLines = doc.splitTextToSize(intro, maxW);
+  doc.text(introLines, margin, y);
+  y += introLines.length * 6 + 8;
+
+  // Caja link
+  checkPagina(40);
+  doc.setFillColor(255,248,225);
+  doc.setDrawColor(245,166,35);
+  doc.roundedRect(margin, y, maxW, 38, 3, 3, 'FD');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(133,100,4);
+  doc.text('ENLACE DE ACCESO AL PORTAL', margin+4, y+8);
+  doc.setFont('courier','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(80,80,80);
+  const urlLines = doc.splitTextToSize(url, maxW-8);
+  doc.text(urlLines.slice(0,3), margin+4, y+16);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(133,100,4);
+  doc.text(`Contrasena: ${inst.portal_password||inst.nif||'Consulte con su instalador'}`, margin+4, y+33);
+  y += 46;
+
+  // Tabla tipos
+  const tipos = (inst.tipos_revision||[]).map(tid=>{ const t=TIPOS.find(x=>x.id===tid); return t?{n:t.nombre,p:t.per_label}:null; }).filter(Boolean);
+  if(tipos.length){
+    checkPagina(20 + tipos.length*8);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11);
+    doc.setTextColor(26,29,39);
+    doc.text('Revisiones activas en su instalacion:', margin, y);
+    y += 7;
+    // Cabecera tabla
+    doc.setFillColor(245,166,35);
+    doc.rect(margin, y, maxW, 8, 'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(0,0,0);
+    doc.text('Tipo de revision', margin+3, y+5.5);
+    doc.text('Periodicidad', margin+maxW*0.65, y+5.5);
+    y += 8;
+    tipos.forEach((t,i)=>{
+      checkPagina(9);
+      if(i%2===0){ doc.setFillColor(248,249,250); doc.rect(margin,y,maxW,8,'F'); }
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      doc.setTextColor(40,40,40);
+      const nombre = doc.splitTextToSize(t.n, maxW*0.6);
+      doc.text(nombre[0], margin+3, y+5.5);
+      doc.text(t.p, margin+maxW*0.65, y+5.5);
+      y += 8;
+    });
+    y += 6;
+  }
+
+  // Pie
+  checkPagina(20);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(150,150,150);
+  doc.text('Para cualquier consulta contacte con su instalador autorizado.', margin, y);
+  y += 5;
+  doc.text('Este documento ha sido generado automaticamente por PETROLBOX VIGILANT.', margin, y);
+
+  // Footer
+  doc.setFillColor(248,248,248);
+  doc.rect(0,282,210,15,'F');
+  doc.setFontSize(8);
+  doc.setTextColor(170,170,170);
+  doc.text('© 2026 Jorge Ivan Perez Rincon · Todos los derechos reservados · PETROLBOX VIGILANT', W/2, 289, {align:'center'});
+
+  const nombre = `Portal_${(inst.nombre||'cliente').replace(/[^a-zA-Z0-9]/g,'_')}.pdf`;
+  doc.save(nombre);
+  return Promise.resolve();
+}
+
+function generarPortal(instId){
+  const inst = instalaciones.find(x=>x.id===instId);
+  if(!inst) return;
+
+  const payload = {
+    sb_url: SB_URL,
+    sb_key: SB_KEY,
+    instalacion_id: instId,
+    exp: Date.now() + (365 * 24 * 60 * 60 * 1000),
+  };
+  const token = btoa(JSON.stringify(payload));
+  const base = (BASE_URL ? BASE_URL.replace(/\/+$/,'') : window.location.href.replace(/[^/]*$/, '').replace(/\/+$/,'')) + '/portal-cliente.html';
+  const url = base + '?token=' + token;
+
+  // Guardar token en Supabase
+  try{
+    await sbPost('pb_tokens', {
+      instalacion_id: instId,
+      token: token,
+      url: url,
+      activo: true,
+      expira_at: new Date(Date.now() + 365*24*60*60*1000).toISOString(),
+    });
+  }catch(e){ console.warn('No se pudo guardar el token:', e.message); }
+
+  // Asunto y cuerpo del email
+  const asunto = encodeURIComponent(`Acceso a su Portal de Revisiones — ${inst.nombre}`);
+  const cuerpo = encodeURIComponent(
+`Estimado cliente,
+
+Le adjuntamos el acceso a su Portal de Revisiones de instalaciones petrolíferas.
+
+Instalación: ${inst.nombre}
+Expediente: ${inst.expediente||'—'}
+
+Enlace de acceso:
+${url}
+
+Contraseña: ${inst.portal_password||inst.nif||'Consulte con su instalador'}
+
+Un saludo,
+PETROLBOX VIGILANT`
+  );
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(inst.email||'')}&su=${asunto}&body=${cuerpo}`;
+  const mailtoUrl = `mailto:${inst.email||''}?subject=${asunto}&body=${cuerpo}`;
+
+  // Modal
+  const div = document.createElement('div');
+  div.id = 'portal-link-overlay';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;';
+  div.addEventListener('click', e => { if(e.target === div) div.remove(); });
+  div.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:580px;width:90%;">
+    <div style="font-size:16px;font-weight:600;color:var(--accent);margin-bottom:6px">🔗 Portal cliente — ${inst.nombre}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Link válido 1 año · Contraseña: <span style="font-family:var(--mono);color:var(--accent)">${inst.portal_password||inst.nif||'—'}</span></div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--ok);word-break:break-all;max-height:80px;overflow-y:auto;margin-bottom:16px">${url}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Enviar por email:</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <button id="btn-gmail" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:13px">📧 Gmail</button>
+      <button id="btn-mailto" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:13px">✉️ Cliente de correo</button>
+      <button id="btn-smtp" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:13px">🖥️ SMTP (mailer)</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="btn-copiar-link" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:13px">📋 Copiar link</button>
+      <button id="btn-pdf-bienvenida" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--sans);font-size:13px">📄 Descargar PDF bienvenida</button>
+      <button onclick="document.getElementById('portal-link-overlay').remove()" style="padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:#000;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500">Cerrar</button>
+    </div>
+    <div id="smtp-status" style="margin-top:12px;font-size:12px;display:none"></div>
+  </div>`;
+  document.body.appendChild(div);
+
+  document.getElementById('btn-copiar-link').addEventListener('click', function(){
+    navigator.clipboard.writeText(url).then(()=>this.textContent='✓ Copiado');
+  });
+  document.getElementById('btn-gmail').addEventListener('click', ()=>{
+    window.open(gmailUrl, '_blank');
+  });
+  document.getElementById('btn-mailto').addEventListener('click', ()=>{
+    window.location.href = mailtoUrl;
+  });
+  document.getElementById('btn-pdf-bienvenida').addEventListener('click', function(){
+    this.textContent = '⏳ Generando...';
+    generarPdfBienvenida(inst, url).then(()=>{ this.textContent = '✅ PDF descargado'; });
+  });
+  document.getElementById('btn-smtp').addEventListener('click', async function(){
+    if(!ML_URL){ 
+      const s=document.getElementById('smtp-status');
+      s.style.display='block';s.style.color='var(--danger)';
+      s.textContent='⚠️ Configura la URL del mailer en Config primero';
+      return;
+    }
+    this.textContent='⏳ Enviando...';
+    const s=document.getElementById('smtp-status');
+    try{
+      const r = await fetch(`${ML_URL}/api/send-portal-link`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ instalacion_id: instId, portal_url: url })
+      });
+      const d = await r.json();
+      if(d.ok){ this.textContent='✅ Enviado'; s.style.display='block'; s.style.color='var(--ok)'; s.textContent='Email enviado a '+inst.email;
+        await logAudit(instId,'email_enviado',`Link portal enviado a ${inst.email}`);
+        renderAuditoria(instId);
+      }
+      else{ this.textContent='SMTP'; s.style.display='block'; s.style.color='var(--danger)'; s.textContent='Error: '+d.error; }
+    }catch(e){ this.textContent='SMTP'; s.style.display='block'; s.style.color='var(--danger)'; s.textContent='Error: '+e.message; }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// TOKENS
+// ══════════════════════════════════════════════════════
+function renderTokens(instId){
+  const cont = document.getElementById('tokens-section');
+  if(!cont) return;
+  const tkns = tokens.filter(t => t.instalacion_id === instId);
+  if(!tkns.length){
+    cont.innerHTML='<div style="color:var(--muted);font-size:13px;padding:4px 0">Sin tokens generados aún.</div>';
+    return;
+  }
+  cont.innerHTML = tkns.map(t=>{
+    const exp = new Date(t.expira_at).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const creado = new Date(t.created_at).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const caducado = new Date(t.expira_at) < new Date();
+    return `<div style="background:var(--bg);border:1px solid ${t.activo&&!caducado?'var(--border)':'var(--danger)'};border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:4px">Generado: ${creado} · Expira: ${exp}</div>
+        <div style="font-size:11px;word-break:break-all;color:var(--muted);max-width:400px">${t.url||'—'}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        ${caducado
+          ? '<span class="badge badge-gray">Caducado</span>'
+          : t.activo
+            ? `<span class="badge badge-ok">Activo</span><button class="btn btn-danger btn-xs" onclick="bloquearToken('${t.id}','${instId}')">Bloquear</button>`
+            : '<span class="badge badge-danger">Bloqueado</span>'
+        }
+        <button class="btn btn-danger btn-xs" onclick="eliminarToken('${t.id}','${instId}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function bloquearToken(tokenId, instId){
+  if(!confirm('¿Bloquear este token? El cliente no podrá acceder al portal con este link.')) return;
+  try{
+    await sbPatch('pb_tokens', tokenId, {activo: false});
+    const i = tokens.findIndex(t=>t.id===tokenId);
+    if(i>=0) tokens[i].activo = false;
+    toast('Token bloqueado — el cliente ya no puede acceder con ese link');
+    renderTokens(instId);
+    await logAudit(instId,'token_bloqueado','Token de portal bloqueado');
+  }catch(e){ toast('Error: '+e.message, false); }
+}
+
+async function eliminarToken(tokenId, instId){
+  if(!confirm('¿Eliminar este token del historial?')) return;
+  try{
+    await sbDel('pb_tokens', tokenId);
+    tokens = tokens.filter(t=>t.id!==tokenId);
+    toast('Token eliminado');
+    renderTokens(instId);
+  }catch(e){ toast('Error: '+e.message, false); }
+}
+
+// ══════════════════════════════════════════════════════
+// AUDITORÍA
+// ══════════════════════════════════════════════════════
+async function logAudit(instId, accion, detalle, datosAnt=null, datosNuev=null){
+  try{
+    const entry = {
+      instalacion_id: instId,
+      accion,
+      detalle,
+      datos_anteriores: datosAnt ? JSON.stringify(datosAnt) : null,
+      datos_nuevos: datosNuev ? JSON.stringify(datosNuev) : null,
+    };
+    const res = await sbPost('pb_auditoria', entry);
+    if(res?.[0]) auditoria.unshift(res[0]);
+  }catch(e){ console.warn('Error audit:', e.message); }
+}
+
+function renderAuditoria(instId){
+  const cont = document.getElementById('auditoria-list');
+  if(!cont) return;
+  const items = auditoria.filter(a => a.instalacion_id === instId);
+  if(!items.length){
+    cont.innerHTML='<div style="color:var(--muted);font-size:13px;padding:4px 0">Sin actividad registrada.</div>';
+    return;
+  }
+  const iconos = {
+    'instalacion_creada':'🆕', 'instalacion_editada':'✏️',
+    'revision_añadida':'📋', 'revision_eliminada':'🗑️',
+    'email_enviado':'📧', 'nota_guardada':'📌', 'comentario_añadido':'💬',
+  };
+  cont.innerHTML = items.map(a=>{
+    const icono = iconos[a.accion] || '📝';
+    const fecha = new Date(a.created_at).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;gap:12px;align-items:flex-start">
+      <div style="font-size:16px;flex-shrink:0;margin-top:1px">${icono}</div>
+      <div style="flex:1">
+        <div style="font-size:13px">${a.detalle||a.accion}</div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:3px">${fecha}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// NOTAS INTERNAS
+// ══════════════════════════════════════════════════════
+function renderNotas(instId){
+  const inst=instalaciones.find(x=>x.id===instId);
+  const notasInst=notas.filter(n=>n.instalacion_id===instId);
+  const cont=document.getElementById('notas-section');
+  if(!cont) return;
+
+  cont.innerHTML=`
+    <!-- Nota fija -->
+    <div style="background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📌 Nota fija</div>
+      <textarea id="nota-fija-input" style="background:transparent;border:none;outline:none;width:100%;color:var(--text);font-family:var(--sans);font-size:13px;resize:vertical;min-height:60px" placeholder="Escribe aquí una nota fija para esta instalación...">${inst?.nota_interna||''}</textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" onclick="guardarNotaFija('${instId}')">Guardar nota</button>
+      </div>
+    </div>
+    <!-- Nuevo comentario -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">💬 Añadir comentario</div>
+      <div style="display:flex;gap:8px">
+        <textarea id="nuevo-comentario" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:var(--sans);font-size:13px;flex:1;resize:none;height:60px;outline:none" placeholder="Escribe un comentario..."></textarea>
+        <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="addComentario('${instId}')">Añadir</button>
+      </div>
+    </div>
+    <!-- Historial comentarios -->
+    ${notasInst.length===0?'<div style="color:var(--muted);font-size:13px;padding:4px 0">Sin comentarios aún.</div>':
+      notasInst.map(n=>`
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div style="flex:1">
+            <div style="font-size:13px;line-height:1.5">${n.texto}</div>
+            <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px">${new Date(n.created_at).toLocaleString('es-ES')} · ${n.autor}</div>
+          </div>
+          <button class="btn btn-danger btn-xs" onclick="deleteNota('${n.id}','${instId}')">✕</button>
+        </div>`).join('')
+    }`;
+}
+
+async function guardarNotaFija(instId){
+  const texto=document.getElementById('nota-fija-input').value.trim();
+  try{
+    await sbPatch('pb_instalaciones',instId,{nota_interna:texto||null});
+    const i=instalaciones.findIndex(x=>x.id===instId);
+    if(i>=0) instalaciones[i].nota_interna=texto||null;
+    toast('Nota guardada');
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+async function addComentario(instId){
+  const texto=document.getElementById('nuevo-comentario').value.trim();
+  if(!texto){toast('Escribe algo primero',false);return;}
+  try{
+    const res=await sbPost('pb_notas',{instalacion_id:instId,texto,autor:'instalador'});
+    notas.unshift(res[0]);
+    document.getElementById('nuevo-comentario').value='';
+    toast('Comentario añadido');
+    renderNotas(instId);
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+async function deleteNota(notaId,instId){
+  if(!confirm('¿Eliminar este comentario?')) return;
+  try{
+    await sbDel('pb_notas',notaId);
+    notas=notas.filter(n=>n.id!==notaId);
+    toast('Comentario eliminado');
+    renderNotas(instId);
+  }catch(e){toast('Error: '+e.message,false);}
+}
+
+// ══════════════════════════════════════════════════════
+// EXPORTACIÓN EXCEL
+// ══════════════════════════════════════════════════════
+function toggleExportMenu(){
+  const m = document.getElementById('export-menu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('export-menu-wrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('export-menu').style.display = 'none';
+});
+
+function fmtEstado(dias){
+  if(dias===null) return 'Sin revisión';
+  if(dias<0) return `Vencido (${Math.abs(dias)}d)`;
+  if(dias<=30) return `Próximo (${dias}d)`;
+  return 'Al día';
+}
+
+function exportarInstalaciones(fmt='xlsx'){
+  document.getElementById('export-menu').style.display='none';
+  const rows = [['Nombre','NIF','Municipio','Provincia','Dirección','Expediente','Tipo instalación','Capacidad (L)','Puesta en servicio','Email','Tipos de revisión','Peor estado','Vencimiento más próximo']];
+  instalaciones.forEach(inst=>{
+    const tipos=(inst.tipos_revision||[]).map(tid=>getTipo(tid)?.nombre||tid).join(' | ');
+    let peorDias=null, peorVenc=null;
+    (inst.tipos_revision||[]).forEach(tid=>{
+      const rev=ultimaRev(inst.id,tid);
+      const d=rev?dias(rev.fecha_vencimiento):null;
+      if(d!==null&&(peorDias===null||d<peorDias)){peorDias=d;peorVenc=rev?.fecha_vencimiento;}
+    });
+    rows.push([
+      inst.nombre, inst.nif||'', inst.municipio||'', inst.provincia||'',
+      inst.direccion||'', inst.expediente||'', inst.tipo_instalacion||'',
+      inst.capacidad_litros||'', inst.fecha_puesta_servicio||'', inst.email||'',
+      tipos, fmtEstado(peorDias), peorVenc||''
+    ]);
+  });
+  if(fmt==='pdf') exportPdf(rows,'Petrolbox_Instalaciones','Listado de Instalaciones'); else exportXlsx([{nombre:'Instalaciones', datos:rows}], 'Petrolbox_Instalaciones');
+}
+
+function exportarAlertas(fmt='xlsx'){
+  document.getElementById('export-menu').style.display='none';
+  const rows = [['Instalación','NIF','Municipio','Expediente','Tipo de revisión','Última revisión','Vencimiento','Días restantes','Estado']];
+  instalaciones.forEach(inst=>{
+    (inst.tipos_revision||[]).forEach(tid=>{
+      const rev=ultimaRev(inst.id,tid);
+      const d=rev?dias(rev.fecha_vencimiento):null;
+      if(d===null||d>60) return;
+      rows.push([
+        inst.nombre, inst.nif||'', inst.municipio||'', inst.expediente||'',
+        getTipo(tid)?.nombre||tid,
+        rev?.fecha_revision||'', rev?.fecha_vencimiento||'',
+        d, fmtEstado(d)
+      ]);
+    });
+  });
+  rows.sort((a,b)=>a[7]-b[7]);
+  if(fmt==='pdf') exportPdf(rows,'Petrolbox_Alertas','Vencidas y Próximas'); else exportXlsx([{nombre:'Alertas', datos:rows}], 'Petrolbox_Alertas');
+}
+
+function exportarRevisiones(fmt='xlsx'){
+  document.getElementById('export-menu').style.display='none';
+  const rows = [['Instalación','NIF','Municipio','Expediente','Tipo de revisión','Fecha revisión','Fecha vencimiento','Resultado','Inspector','Nº certificado','Registrado por','Observaciones']];
+  revisiones.forEach(r=>{
+    const inst=instalaciones.find(x=>x.id===r.instalacion_id);
+    if(!inst) return;
+    rows.push([
+      inst.nombre, inst.nif||'', inst.municipio||'', inst.expediente||'',
+      getTipo(r.tipo_revision_id)?.nombre||r.tipo_revision_id,
+      r.fecha_revision||'', r.fecha_vencimiento||'', r.resultado||'',
+      r.inspector||'', r.num_certificado||'',
+      r.registrado_por==='cliente'?'Cliente':'Instalador',
+      r.observaciones||''
+    ]);
+  });
+  if(fmt==='pdf') exportPdf(rows,'Petrolbox_Revisiones','Historial de Revisiones'); else exportXlsx([{nombre:'Revisiones', datos:rows}], 'Petrolbox_Revisiones');
+}
+
+function toggleFichaMenu(){
+  const m=document.getElementById('ficha-export-menu');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  const w=document.getElementById('ficha-export-wrap');
+  if(w&&!w.contains(e.target)){const m=document.getElementById('ficha-export-menu');if(m)m.style.display='none';}
+});
+
+function exportarFicha(fmt='xlsx'){
+  document.getElementById('ficha-export-menu').style.display='none';
+  const instId=detalleId;
+  const inst = instalaciones.find(x=>x.id===instId);
+  if(!inst) return;
+  const revs = revisiones.filter(r=>r.instalacion_id===instId);
+
+  // Hoja 1: datos instalación
+  const info = [
+    ['PETROLBOX VIGILANT — Ficha de instalación',''],
+    ['',''],
+    ['Nombre', inst.nombre],
+    ['NIF', inst.nif||''],
+    ['Teléfono', inst.telefono||''],
+    ['Email', inst.email||''],
+    ['Dirección', inst.direccion||''],
+    ['Municipio', inst.municipio||''],
+    ['Provincia', inst.provincia||''],
+    ['Expediente', inst.expediente||''],
+    ['Tipo instalación', inst.tipo_instalacion||''],
+    ['Capacidad (L)', inst.capacidad_litros||''],
+    ['Puesta en servicio', inst.fecha_puesta_servicio||''],
+    ['Observaciones', inst.observaciones||''],
+    ['',''],
+    ['TIPOS DE REVISIÓN ACTIVOS',''],
+  ];
+  (inst.tipos_revision||[]).forEach(tid=>{
+    const tipo=getTipo(tid);
+    const rev=ultimaRev(instId,tid);
+    const d=rev?dias(rev.fecha_vencimiento):null;
+    info.push([tipo?.nombre||tid, fmtEstado(d)+' · Vence: '+(rev?.fecha_vencimiento||'—')]);
+  });
+
+  // Hoja 2: historial
+  const hist = [['Tipo revisión','Fecha revisión','Vencimiento','Resultado','Inspector','Nº certificado','Registrado por','Observaciones']];
+  revs.forEach(r=>{
+    hist.push([
+      getTipo(r.tipo_revision_id)?.nombre||r.tipo_revision_id,
+      r.fecha_revision||'', r.fecha_vencimiento||'', r.resultado||'',
+      r.inspector||'', r.num_certificado||'',
+      r.registrado_por==='cliente'?'Cliente':'Instalador',
+      r.observaciones||''
+    ]);
+  });
+
+  const nombre=`Ficha_${inst.nombre.replace(/[^a-zA-Z0-9]/g,'_')}`;
+  if(fmt==='pdf'){
+    // Combinar info + hist en un solo PDF
+    const allRows=[...info,['',''],['HISTORIAL DE REVISIONES',''],...hist];
+    exportPdf(allRows, nombre, `Ficha: ${inst.nombre}`);
+  } else {
+    exportXlsx([{nombre:'Ficha',datos:info},{nombre:'Historial',datos:hist}], nombre);
+  }
+}
+
+function exportPdf(rows, nombre, titulo){
+  const { jsPDF } = window.jspdf;
+  const isLandscape = rows[0] && rows[0].length > 5;
+  const doc = new jsPDF({ unit:'mm', format:'a4', orientation: isLandscape?'landscape':'portrait' });
+  const W = isLandscape ? 297 : 210;
+  const H = isLandscape ? 210 : 297;
+  const margin = 12;
+  const maxW = W - margin*2;
+  const fecha = new Date().toLocaleDateString('es-ES');
+  let y = 0;
+
+  // Cabecera
+  doc.setFillColor(15,17,23);
+  doc.rect(0,0,W,22,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(245,166,35);
+  doc.text('PETROLBOX VIGILANT', margin, 10);
+  doc.setFontSize(10);
+  doc.setTextColor(200,200,200);
+  doc.text(titulo, margin, 17);
+  doc.setFontSize(8);
+  doc.setTextColor(150,150,150);
+  doc.text(fecha, W-margin, 10, {align:'right'});
+  y = 30;
+
+  // Calcular anchos de columnas
+  const cabecera = rows[0] || [];
+  const datos = rows.slice(1).filter(r => r.some(v=>v!==''&&v!==null&&v!==undefined));
+  const numCols = cabecera.length;
+  const colW = numCols > 0 ? maxW / numCols : maxW;
+
+  // Cabecera tabla
+  doc.setFillColor(245,166,35);
+  doc.rect(margin, y, maxW, 8, 'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(0,0,0);
+  cabecera.forEach((h,i)=>{
+    const x = margin + i*colW;
+    const txt = doc.splitTextToSize(String(h||''), colW-2);
+    doc.text(txt[0]||'', x+2, y+5.5);
+  });
+  y += 8;
+
+  // Filas
+  datos.forEach((row, ri)=>{
+    if(y > H-20){ doc.addPage(); y=15; }
+    if(ri%2===0){ doc.setFillColor(248,249,250); doc.rect(margin,y,maxW,7,'F'); }
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(40,40,40);
+    row.forEach((v,i)=>{
+      const x = margin + i*colW;
+      const txt = String(v||'');
+      const lines = doc.splitTextToSize(txt, colW-2);
+      doc.text(lines[0]||'', x+2, y+4.5);
+    });
+    y += 7;
+  });
+
+  // Footer
+  doc.setFillColor(248,248,248);
+  doc.rect(0,H-10,W,10,'F');
+  doc.setFontSize(7);
+  doc.setTextColor(170,170,170);
+  doc.text('© 2026 Jorge Ivan Perez Rincon · Todos los derechos reservados · PETROLBOX VIGILANT', W/2, H-4, {align:'center'});
+
+  doc.save(`${nombre}_${new Date().toISOString().split('T')[0]}.pdf`);
+  toast('PDF exportado');
+}
+
+function exportXlsx(hojas, nombre){
+  const wb = XLSX.utils.book_new();
+  hojas.forEach(h=>{
+    const ws = XLSX.utils.aoa_to_sheet(h.datos);
+    // Ancho de columnas automático
+    const cols = h.datos[0].map((_,i)=>{
+      const max = h.datos.reduce((m,r)=>Math.max(m,(r[i]||'').toString().length),10);
+      return {wch:Math.min(max+2,50)};
+    });
+    ws['!cols'] = cols;
+    XLSX.utils.book_append_sheet(wb, ws, h.nombre);
+  });
+  XLSX.writeFile(wb, `${nombre}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  toast('Excel exportado correctamente');
+}
+
+// ══════════════════════════════════════════════════════
+// SECCIONES
+// ══════════════════════════════════════════════════════
+function showSection(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  const tabs={dashboard:0,clientes:1,alertas:2,config:3};
+  if(tabs[name]!==undefined)document.querySelectorAll('.nav-tab')[tabs[name]].classList.add('active');
+  if(name==='alertas')renderAlertas();
+  if(name==='dashboard')renderDashboard();
+  if(name==='clientes')renderClientes();
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  if(BASE_URL)document.getElementById('cfg-base').value=BASE_URL;
+  if(SB_URL)document.getElementById('cfg-url').value=SB_URL;
+  if(SB_KEY)document.getElementById('cfg-key').value=SB_KEY;
+  if(ML_URL)document.getElementById('cfg-mailer').value=ML_URL;
+  const ft=document.getElementById('filter-tipo');
+  const at=document.getElementById('alert-filter-tipo');
+  TIPOS.forEach(t=>{
+    ft.innerHTML+=`<option value="${t.id}">${t.nombre}</option>`;
+    at.innerHTML+=`<option value="${t.id}">${t.nombre}</option>`;
+  });
+  document.querySelectorAll('.modal-overlay').forEach(m=>{
+    m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+  });
+  if(SB_URL&&SB_KEY)loadAll();
+
+  // Registrar Service Worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./service-worker.js').then(reg=>{
+      console.log('SW registrado:', reg.scope);
+      reg.addEventListener('updatefound',()=>{
+        const newSW=reg.installing;
+        newSW.addEventListener('statechange',()=>{
+          if(newSW.state==='installed'&&navigator.serviceWorker.controller){
+            toast('Nueva versión disponible — recarga para actualizar');
+          }
+        });
+      });
+    }).catch(e=>console.warn('SW no registrado:',e));
+  }
+});
+
+// PWA install prompt
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+  document.getElementById('btn-instalar').style.display = 'block';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('btn-instalar').style.display = 'none';
+  _installPrompt = null;
+  toast('¡App instalada correctamente!');
+});
+function instalarPWA(){
+  if(!_installPrompt) return;
+  _installPrompt.prompt();
+  _installPrompt.userChoice.then(r=>{
+    if(r.outcome==='accepted') toast('Instalando Petrolbox Vigilant...');
+    _installPrompt = null;
+    document.getElementById('btn-instalar').style.display = 'none';
+  });
+}
+</script>
+<footer style="text-align:center;padding:14px 20px;font-size:11px;color:var(--muted);font-family:var(--mono);border-top:1px solid var(--border);background:var(--surface);position:fixed;bottom:0;left:0;right:0;z-index:50;pointer-events:none;">
+  © 2026 Jorge Iván Pérez Rincón · Todos los derechos reservados · PETROLBOX VIGILANT
+</footer>
+</body>
+</html>
